@@ -34,7 +34,7 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
         if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
     }
 };
-var SERVER_HOST = "http://172.21.197.80:64873";
+var SERVER_HOST = "https://alternance.chamallow.xyz";
 function fetch_companies(n) {
     return __awaiter(this, void 0, void 0, function () {
         return __generator(this, function (_a) {

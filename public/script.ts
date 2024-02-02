@@ -1,4 +1,4 @@
-const SERVER_HOST: string = "http://172.21.197.80:64873"
+const SERVER_HOST: string = "https://alternance.chamallow.xyz";
 
 async function fetch_companies(n: number): Promise<Array<Object>> {
     return new Promise(function(resolve, reject){
