@@ -1,0 +1,266 @@
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap');
+html {
+  scroll-behavior: smooth;
+}
+body {
+  font-family: "Montserrat", sans-serif;
+  font-optical-sizing: auto;
+  margin: 0;
+  padding: 0;
+  width: 100vw;
+  height: 100%;
+  background: #121920;
+  color: #fff;
+}
+button {
+  padding: 10px 15px;
+  border: 3px solid #435a74;
+  background: rgba(67, 90, 116, 0.2);
+  color: #fff;
+  font-weight: 800;
+  border-radius: 7px;
+  cursor: pointer;
+}
+button:hover {
+  background: rgba(67, 90, 116, 0.5);
+}
+details.info {
+  padding: 20px;
+  margin: 10px;
+  width: 80vw;
+  position: absolute;
+  z-index: 1000;
+  top: 20px;
+  left: 50%;
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+  transform: translateX(-50%);
+  backdrop-filter: blur(7px);
+  border: 3px solid #435a74;
+  border-radius: 7px;
+  background: rgba(67, 90, 116, 0.25);
+}
+details.info[open] {
+  background: rgba(67, 90, 116, 0.4);
+}
+details.info summary {
+  list-style: none;
+  padding: 1em;
+}
+details.info summary:focus {
+  outline: none;
+}
+details.info summary::-webkit-details-marker {
+  display: none;
+}
+details.info summary:hover .summary-chevron-up svg {
+  opacity: 1;
+}
+details.info .summary-title {
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+}
+details.info .summary-chevron-up svg {
+  opacity: 0.5;
+}
+details.info .summary-content {
+  border-top: 1px solid #e2e8f0;
+  cursor: default;
+  padding: 1em;
+  font-weight: 300;
+  line-height: 1.5;
+}
+details.info .summary-chevron-up,
+details.info .summary-chevron-down {
+  pointer-events: none;
+  position: absolute;
+  top: 2em;
+  right: 1em;
+}
+details.info .summary-chevron-up svg,
+details.info .summary-chevron-down svg {
+  display: block;
+}
+details.info[open] .summary-chevron-up {
+  display: none;
+}
+details.info .i_love_you {
+  color: rgba(255, 255, 255, 0.8);
+  line-height: 15px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+details.info .i_love_you p,
+details.info .i_love_you a {
+  margin: 2px auto;
+}
+details.info .i_love_you a {
+  color: #5582e3;
+  font-weight: 600;
+}
+.table {
+  margin-top: 150px;
+  display: flex;
+  flex-direction: row;
+  align-items: flex-start;
+}
+.table .filter {
+  margin: 0 auto;
+  padding: 20px;
+  width: 30%;
+  *left: 20px;
+  border: 3px solid #435a74;
+  border-radius: 7px;
+}
+.table .filter .controller {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  margin: 20px 0 0 0;
+}
+.table .filter .controller button {
+  margin: auto auto auto 0;
+}
+.table .container {
+  width: 60%;
+  margin: 0 auto;
+  padding: 20px;
+  right: 0;
+  border: 3px solid #435a74;
+  border-radius: 7px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+.table .container #count {
+  text-align: left;
+  width: 100%;
+  padding: 10px 0;
+}
+.table .container #count p {
+  margin: auto auto auto 50px;
+  font-size: 1.2em;
+}
+.table .container #alternance {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+.table .container #alternance .company {
+  width: 90%;
+  border: 2px solid #435a74;
+  border-radius: 7px;
+  background: rgba(67, 90, 116, 0.2);
+  padding: 20px;
+  margin: 10px auto;
+}
+.table .container #alternance .company .head {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  width: 100%;
+}
+.table .container #alternance .company .head h3 {
+  width: 80%;
+}
+.table .container #alternance .company .head p {
+  font-weight: 300;
+  font-size: 0.8em;
+  margin: auto 20px auto auto;
+}
+.table .container #alternance .company .type,
+.table .container #alternance .company .description {
+  font-size: 0.9em;
+  margin: 20px auto 20px 0;
+}
+.table .container #alternance .company .type {
+  margin-top: 5px;
+}
+.table .container #alternance .company .localisation {
+  margin-top: 10px;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+}
+.table .container #alternance .company .localisation svg {
+  height: 1.5em;
+  width: auto;
+  color: #fff;
+}
+.table .container #alternance .company .localisation a {
+  margin: auto auto auto 20px;
+  font-size: 0.9em;
+  color: rgba(255, 255, 255, 0.8);
+}
+.table .container #alternance .company button:last-child {
+  margin-top: 20px;
+  background: rgba(85, 130, 227, 0.2);
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+}
+.table .container #alternance .company button:last-child svg {
+  fill: #5582e3;
+  width: 24px;
+  height: auto;
+  margin-right: 10px;
+}
+.table .container #alternance .company button:last-child:hover {
+  background: rgba(85, 130, 227, 0.4);
+}
+#fuck_this_shit {
+  height: 2px;
+  width: 2px;
+  background: transparent;
+  margin: 0 auto;
+}
+input {
+  padding: 10px 15px;
+  outline: none;
+  background: #121920;
+  color: #fff;
+  border-radius: 7px;
+  border: 2px solid #435a74;
+}
+input:hover,
+input:focus {
+  border-color: #5582e3;
+}
+.login {
+  height: 100vh;
+  width: 100vw;
+  position: fixed;
+  z-index: 99999;
+  top: 0;
+  left: 0;
+  background: #121920;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+.login .center {
+  margin: auto;
+  text-align: center;
+}
+.login .center input {
+  margin: 30px auto;
+}
+.top {
+  position: fixed;
+  bottom: 20px;
+  left: 20px;
+  border-radius: 50%;
+  background: #121920;
+  padding: 4px;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+}
+.top svg {
+  height: 50px;
+  width: auto;
+  stroke: #5582e3;
+}
+/*# sourceMappingURL=style.css.map */

@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="fr">
+    <head>
+        <title>Mashra - Alternance</title>
+        <meta http-equiv="Content-Type" content="text/html;charset=UTF-8">
+
+        <link rel="stylesheet" href="public/style.css">
+        <link rel="stylesheet" href="public/components.css">
+    </head>
+    <body>
+        <div class="login">
+
+            <div class="center">
+                <h1>Veuillez entrer le code d'authentification</h1>
+
+                <div class="info">
+                    <label for="passwd">Code</label>
+                    <input id="passwd" type="password" placeholder="Le code d'authentification">
+                </div>
+
+                <p>Ce code permet de protéger les données en limitant l'accès aux seuls détenteurs du code.</p>
+            </div>
+        </div>
+
+        <details id="top" class="info">
+            <summary>
+                <span class="summary-title">Mashra - Site d'alternance</span>
+                <div class="summary-chevron-up">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-chevron-down"><polyline points="6 9 12 15 18 9"></polyline></svg>
+                </div>
+            </summary>
+
+            <div class="summary-content">
+                <p>Ce site permet de référencer les différentes entreprises pour l'alternance</p>
+
+                <div class="i_love_you">
+                    <p>Site et api développé avec ❤️ par Cédric Colin</p>
+                    <p>L'api est hébergé par la team <a href="https://github.com/chamallow-team/" target="_blank">Chamallow</a></p>
+                </div>
+            </div>
+            <div class="summary-chevron-down">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-chevron-up"><polyline points="18 15 12 9 6 15"></polyline></svg>
+            </div>
+        </details>
+
+        <div class="table">
+            <div class="filter" id="filter_container">
+                <h2>Filtrer</h2>
+                <!-- Si l'entreprise recherche des alternants -->
+                <label class="mcui-checkbox">
+                    <input id="research_alternance_required" type="checkbox">
+                    <div>
+                        <svg class="mcui-check" viewBox="-2 -2 35 35" aria-hidden="true">
+                            <polyline points="7.57 15.87 12.62 21.07 23.43 9.93" />
+                        </svg>
+                    </div>
+                    <div>Recherche obligatoirement des alternants</div>
+                </label>
+                <!-- Un mot clé dans le nom ou la description -->
+                <div class="mcui-text">
+                    <input id="search"
+                           placeholder="Mot clé"
+                           type="text">
+                    <label for="search">Mot clé</label>
+                </div>
+
+                <div class="info">
+                    <!-- TODO faire un multi-select -->
+                </div>
+
+                <div class="controller">
+                    <button id="apply_filter" type="button">Rechercher</button>
+                    <button id="clear_filter" type="reset">Supprimer le filtre</button>
+                </div>
+            </div>
+            <div class="container">
+                <div id="count"></div>
+                <div id="alternance">
+                <!-- Les entreprises vont ici -->
+
+                <div class="loading">
+                    <div class="dot-spinner">
+                        <div class="dot-spinner__dot"></div>
+                        <div class="dot-spinner__dot"></div>
+                        <div class="dot-spinner__dot"></div>
+                        <div class="dot-spinner__dot"></div>
+                        <div class="dot-spinner__dot"></div>
+                        <div class="dot-spinner__dot"></div>
+                        <div class="dot-spinner__dot"></div>
+                        <div class="dot-spinner__dot"></div>
+                    </div>
+                    <p>Les données chargent...</p>
+                </div>
+
+            </div>
+            </div>
+
+        </div>
+        <div id="fuck_this_shit"></div>
+
+        <a href="#top" class="top">
+            <svg viewBox="-0.5 0 25 25" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M12 22.4199C17.5228 22.4199 22 17.9428 22 12.4199C22 6.89707 17.5228 2.41992 12 2.41992C6.47715 2.41992 2 6.89707 2 12.4199C2 17.9428 6.47715 22.4199 12 22.4199Z" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                <path d="M8 13.8599L10.87 10.8C11.0125 10.6416 11.1868 10.5149 11.3815 10.4282C11.5761 10.3415 11.7869 10.2966 12 10.2966C12.2131 10.2966 12.4239 10.3415 12.6185 10.4282C12.8132 10.5149 12.9875 10.6416 13.13 10.8L16 13.8599" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+        </a>
+
+        <script src="public/script.js"></script>
+    </body>
+</html>
