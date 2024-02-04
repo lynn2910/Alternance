@@ -7,18 +7,21 @@ let is_prod = (/[a-zA-Z0-9]+\.[a-zA-Z]+/).test(document.location.host.toString()
 async function fetch_companies(n: number): Promise<{ count: number, companies: Array<Object> }> {
     return new Promise(function(resolve, reject){
         fetch(
-        `${SERVER_HOST}/companies?ratio=${n}&passwd=${given_mdp}`,
+        `${SERVER_HOST}/companies?ratio=${n}`,
         {
                 method: "POST",
                 mode: "cors",
-                body: query_filter
+                body: query_filter,
+                headers: {
+                    "TOKEN": localStorage.getItem("token")
+                }
             }
         ).then(
             async (res) => {
                 if (res.status == 200)
                     return resolve(await res.json())
                 else if (res.status == 401)
-                    return bad_password()
+                    return bad_credentials()
                 else
                     return reject()
             },
@@ -33,10 +36,13 @@ async function get_company_informations(id: string): Promise<any> {
         form_data.set("company_id", id)
 
         fetch(
-        `${SERVER_HOST}/companies/get_company_informations?passwd=${given_mdp}`,
+        `${SERVER_HOST}/companies/get_company_informations`,
         {
                 method: "POST",
                 mode: "cors",
+                headers: {
+                    "TOKEN": localStorage.getItem("token")
+                },
                 body: form_data
             }
         ).then(
@@ -44,7 +50,7 @@ async function get_company_informations(id: string): Promise<any> {
                 if (res.status == 200)
                     return resolve(await res.json())
                 else if (res.status == 401)
-                    return bad_password()
+                    return bad_credentials()
                 else
                     return reject()
             },
@@ -65,7 +71,7 @@ async function add_companies(){
         login.forEach((e) => e.remove())
 
     // Si N < 1, ça veut dire qu'il n'y avait aucune entreprise
-    // donc on doit retirer le loader
+    // donc on doit retirer l'élément de chargement
     if (N < 1) {
         document.getElementById("alternance").innerHTML = "";
         document.getElementById("count")
@@ -118,8 +124,6 @@ function add_company(company: any){
     let address = `${company.street_address} - ${company.postal_code} - ${company.country}`
         .replace(/\s{2,}/g, " ");
 
-    // 3 RUE DU DOCTEUR FRERY - CS 50199, 90000 BELFORT CEDEX, FRANCE
-
     let html = `
 <div class="company">
     <div class="head">
@@ -149,7 +153,7 @@ function add_company(company: any){
     document.getElementById("alternance").innerHTML += html;
 }
 
-function bad_password(){
+function bad_credentials(){
     window.location.reload();
 }
 
@@ -163,8 +167,6 @@ async function hashPassword(password: string): Promise<string> {
     return hashArray.map(byte => byte.toString(16).padStart(2, '0')).join('');
 }
 
-let given_mdp = "";
-
 function mdp_listener(){
     let pwd = document.getElementById("passwd");
 
@@ -174,31 +176,25 @@ function mdp_listener(){
         if (!key_pressed)
             key_pressed = true;
 
-        if (k.key === "Enter")
-                password_entered()
+        if (k.key === "Enter") {
+            if (is_entering_new_password)
+                define_new_password();
+            else
+                login();
+        }
     })
 
-    if (!is_prod) {
-        // C'est chiant de devoir appuyer sur entrée à chaque fois quand on reload
-        let interval_id = setInterval(function(){
-            if (!key_pressed && (pwd as HTMLInputElement).value != "") {
-                password_entered();
-                clearInterval(interval_id);
-            }
-        }, 100);
+    let token = localStorage.getItem("token");
+    let credentials = localStorage.getItem("credentials");
+
+    if (token && token.length > 0 && credentials && credentials.length > 0) {
+        let parsed_credentials = JSON.parse(atob(credentials));
+
+        let name = parsed_credentials["name"];
+        let passwd = parsed_credentials["passwd"];
+
+        login_backend(name, passwd);
     }
-
-    if ((pwd as HTMLInputElement).value != "")
-        password_entered()
-}
-
-function password_entered(){
-    let pwd = document.getElementById("passwd");
-    let passwd = (pwd as HTMLInputElement).value;
-    hashPassword(passwd).then(function(hash){
-        given_mdp = hash;
-        code_entered();
-    })
 }
 
 document.addEventListener("DOMContentLoaded", function(){
@@ -218,14 +214,11 @@ document.addEventListener("DOMContentLoaded", function(){
         });
 
     document.addEventListener("keydown", function(k){
-        if (k.key === "Enter" && given_mdp === ""){
-            let passwd = document.getElementById("passwd") as HTMLInputElement;
-            hashPassword(passwd.value).then(function(hash){
-            given_mdp = hash;
-            console.log(given_mdp);
-
-            code_entered();
-        })
+        if (k.key === "Enter" && !is_logged) {
+            if (is_entering_new_password)
+                define_new_password();
+            else
+                login();
         }
 
         if (k.key === "Escape" && document.getElementById("popup").classList.contains("opened")) {
@@ -238,7 +231,7 @@ document.addEventListener("DOMContentLoaded", function(){
 function auto_scroll_loader(){
     let el = document.getElementById("fuck_this_shit");
 
-    function isElementInViewport(el) {
+    function isElementInViewport(el: HTMLElement) {
         let rect = el.getBoundingClientRect();
         return (
             rect.bottom >= 0 &&
@@ -255,7 +248,10 @@ function auto_scroll_loader(){
     });
 }
 
-function code_entered(){
+function credentials_entered(name: string, passwd: string){
+    let credentials = btoa(JSON.stringify({ name, passwd }))
+    localStorage.setItem("credentials", credentials);
+
     add_companies();
     auto_scroll_loader();
 }
@@ -316,10 +312,164 @@ async function open_company_informations_popup(id: string) {
     document.getElementById("country_reception_service")
         .textContent = informations["reception_service_country"].length > 0 ? informations["reception_service_country"] : "Aucun pays";
 
+    // update tutors informations
+    document.getElementById("tutor_name")
+        .textContent = informations["t.name"].length > 0 ? informations["t.name"] : "Aucun nom";
+    document.getElementById("tutor_surname")
+        .textContent = informations["surname"].length > 0 ? informations["surname"] : "Aucun prénom";
+    document.getElementById("tutor_function")
+        .textContent = informations["function"].length > 0 ? informations["function"] : "Aucune fonction";
+    document.getElementById("tutor_mail")
+        .textContent = informations["mail"].length > 0 ? informations["mail"] : "Aucun mail";
+    document.getElementById("tutor_phone")
+        .textContent = informations["t.phone"].length > 0 ? informations["t.phone"] : "Aucun téléphone";
+
     document.getElementById("popup").classList.remove("loading");
 }
 
 function close_popup(){
     document.getElementById("popup").classList.remove("opened");
     document.body.style["overflow"] = "";
+}
+
+let is_entering_new_password = false;
+let is_logged = false;
+
+async function login(){
+    let name = (document.getElementById("id_name") as HTMLInputElement).value;
+    let passwd = (document.getElementById("passwd") as HTMLInputElement).value;
+
+    await login_backend(name, await hashPassword(passwd));
+}
+
+async function login_backend(name: string, passwd: string){
+    let form = new FormData();
+    form.set("name", name);
+    form.set("passwd", passwd);
+
+    fetch(
+        `${SERVER_HOST}/auth/login`,
+        {
+            body: form,
+            method: "POST"
+        }
+    ).then(
+        async function(res){
+            switch (res.status) {
+                case 200: {
+                    let data = await res.json();
+                    // set the token in the localStorage
+                    localStorage.setItem("token", data["token"])
+
+                    // don't call await, as this is asynchronous to not block the user interface
+                    new_device(name);
+
+                    if (data["is_passwd_default"] == 1){
+                        let credentials_base64 = btoa(JSON.stringify({ name, passwd }));
+                        localStorage.setItem("credentials", credentials_base64);
+
+                        is_entering_new_password = true;
+                        document.getElementById("id_info").style["display"] = "none";
+
+                        document.getElementById("login_title")
+                            .textContent = "Définir un nouveau mot de passe";
+
+                        document.getElementById("passwd")
+                            .setAttribute("placeholder", "Nouveau mot de passe");
+
+                        document.getElementById("passwd_label")
+                            .textContent = "Nouveau mot de passe";
+
+                        (document.getElementById("passwd") as HTMLInputElement).value = "";
+
+                        document.getElementById("login_btn").textContent = "Définir le nouveau mot de passe";
+
+                        document.getElementById("login_btn").onclick = () => define_new_password();
+                    }
+                    else {
+                        is_logged = true;
+                        credentials_entered(name, passwd)
+                    }
+                    break;
+                }
+                case 401: {
+                    alert("Mot de passe ou identifiant incorrect")
+                    break;
+                }
+                default:
+                    alert("Erreur lors de la connexion: CODE " + res.status.toString())
+            }
+        },
+        (e) => {
+            alert("Erreur lors de la connexion: " + e.toString())
+        }
+    )
+}
+
+async function new_device(id: string) {
+    let previous_connections = localStorage.getItem("previous_connections") || "";
+    let parsed_previous_connections: string[] = previous_connections.split(/,/g).filter(e => e.length > 0);
+
+    console.log(parsed_previous_connections, id)
+
+    // check if the current device is already known
+    if (!parsed_previous_connections.includes(id)) {
+        if (parsed_previous_connections.length > 0)
+            previous_connections += `,${id}`;
+        else previous_connections = id;
+
+        localStorage.setItem("previous_connections", previous_connections);
+
+        // tell the api that a new device is connected to the account
+        await fetch(
+        `${SERVER_HOST}/auth/new_device`,
+        {
+                headers: {
+                    "TOKEN": localStorage.getItem("token")
+                }
+            }
+        )
+    }
+}
+
+async function define_new_password(){
+    is_logged = true;
+
+    let new_passwd = await hashPassword((document.getElementById("passwd") as HTMLInputElement).value);
+
+    let data = new FormData();
+    data.set("new_passwd", new_passwd);
+
+    fetch(
+        `${SERVER_HOST}/auth/define_new_password`,
+        {
+            method: "POST",
+            body: data,
+            headers: {
+                "TOKEN": localStorage.getItem("token")
+            }
+        }
+    ).then(
+        async function(res){
+            switch (res.status) {
+                case 200: {
+                    alert("Le mot de passe a été modifié avec succès");
+
+                    let credentials = JSON.parse(atob(localStorage.getItem("credentials")));
+                    credentials_entered(credentials["name"], new_passwd);
+                    break;
+                }
+                case 401: {
+                    alert("Vous n'êtes pas connecté");
+                    bad_credentials();
+                    break;
+                }
+                default:
+                    alert("Erreur lors de la connexion: CODE " + res.status.toString())
+            }
+        },
+        (e) => {
+            alert("Erreur lors de la connexion: " + e.toString())
+        }
+    )
 }

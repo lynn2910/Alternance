@@ -43,10 +43,13 @@ function fetch_companies(n) {
         return __generator(this, function (_a) {
             return [2 /*return*/, new Promise(function (resolve, reject) {
                     var _this = this;
-                    fetch("".concat(SERVER_HOST, "/companies?ratio=").concat(n, "&passwd=").concat(given_mdp), {
+                    fetch("".concat(SERVER_HOST, "/companies?ratio=").concat(n), {
                         method: "POST",
                         mode: "cors",
-                        body: query_filter
+                        body: query_filter,
+                        headers: {
+                            "TOKEN": localStorage.getItem("token")
+                        }
                     }).then(function (res) { return __awaiter(_this, void 0, void 0, function () {
                         var _a;
                         return __generator(this, function (_b) {
@@ -58,7 +61,7 @@ function fetch_companies(n) {
                                 case 1: return [2 /*return*/, _a.apply(void 0, [_b.sent()])];
                                 case 2:
                                     if (res.status == 401)
-                                        return [2 /*return*/, bad_password()];
+                                        return [2 /*return*/, bad_credentials()];
                                     else
                                         return [2 /*return*/, reject()];
                                     _b.label = 3;
@@ -77,9 +80,12 @@ function get_company_informations(id) {
                     var _this = this;
                     var form_data = new FormData();
                     form_data.set("company_id", id);
-                    fetch("".concat(SERVER_HOST, "/companies/get_company_informations?passwd=").concat(given_mdp), {
+                    fetch("".concat(SERVER_HOST, "/companies/get_company_informations"), {
                         method: "POST",
                         mode: "cors",
+                        headers: {
+                            "TOKEN": localStorage.getItem("token")
+                        },
                         body: form_data
                     }).then(function (res) { return __awaiter(_this, void 0, void 0, function () {
                         var _a;
@@ -92,7 +98,7 @@ function get_company_informations(id) {
                                 case 1: return [2 /*return*/, _a.apply(void 0, [_b.sent()])];
                                 case 2:
                                     if (res.status == 401)
-                                        return [2 /*return*/, bad_password()];
+                                        return [2 /*return*/, bad_credentials()];
                                     else
                                         return [2 /*return*/, reject()];
                                     _b.label = 3;
@@ -118,7 +124,7 @@ function add_companies() {
                     if (login.length > 0)
                         login.forEach(function (e) { return e.remove(); });
                     // Si N < 1, ça veut dire qu'il n'y avait aucune entreprise
-                    // donc on doit retirer le loader
+                    // donc on doit retirer l'élément de chargement
                     if (N < 1) {
                         document.getElementById("alternance").innerHTML = "";
                         document.getElementById("count")
@@ -164,11 +170,10 @@ function clear_filter() {
 function add_company(company) {
     var address = "".concat(company.street_address, " - ").concat(company.postal_code, " - ").concat(company.country)
         .replace(/\s{2,}/g, " ");
-    // 3 RUE DU DOCTEUR FRERY - CS 50199, 90000 BELFORT CEDEX, FRANCE
     var html = "\n<div class=\"company\">\n    <div class=\"head\">\n        <h3>".concat(company.host_name_establishment, "</h3>\n        <p>").concat(company.year, "</p>\n    </div>\n    <p class=\"type\"><strong>Type d'entreprise\u00A0: </strong>").concat(company.structure_type, "</p>\n    <p class=\"description\">").concat(company.subject, "</p>\n    <div class=\"localisation\">\n        <svg viewBox=\"0 0 24 24\" fill=\"none\" xmlns=\"http://www.w3.org/2000/svg\">\n            <path d=\"M12 21C15.5 17.4 19 14.1764 19 10.2C19 6.22355 15.866 3 12 3C8.13401 3 5 6.22355 5 10.2C5 14.1764 8.5 17.4 12 21Z\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"/>\n            <path d=\"M12 12C13.1046 12 14 11.1046 14 10C14 8.89543 13.1046 8 12 8C10.8954 8 10 8.89543 10 10C10 11.1046 10.8954 12 12 12Z\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"/>\n        </svg>\n        <a target=\"_blank\" href=\"https://www.google.fr/maps/search/").concat(encodeURIComponent(address), "\">").concat(address, "</a>\n    </div>\n\n    <div class=\"bottom\">\n        <button onclick=\"open_company_informations_popup(").concat(company.company_id, ")\" type=\"button\">\n            <svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 24 24\"><path d=\"M12 2C6.486 2 2 6.486 2 12s4.486 10 10 10 10-4.486 10-10S17.514 2 12 2zm0 18c-4.411 0-8-3.589-8-8s3.589-8 8-8 8 3.589 8 8-3.589 8-8 8z\"></path><path d=\"M11 11h2v6h-2zm0-4h2v2h-2z\"></path></svg>\n            Voir toutes les informations\n        </button>\n        <p>Cette offre <strong>").concat(company.research_students != 0 ? "est toujours disponible" : "date de l'ann\u00E9e ".concat(company.year), "</strong></p>\n    </div>\n    \n</div>");
     document.getElementById("alternance").innerHTML += html;
 }
-function bad_password() {
+function bad_credentials() {
     window.location.reload();
 }
 function hashPassword(password) {
@@ -188,35 +193,27 @@ function hashPassword(password) {
         });
     });
 }
-var given_mdp = "";
 function mdp_listener() {
     var pwd = document.getElementById("passwd");
     var key_pressed = false;
     pwd.addEventListener("keydown", function (k) {
         if (!key_pressed)
             key_pressed = true;
-        if (k.key === "Enter")
-            password_entered();
+        if (k.key === "Enter") {
+            if (is_entering_new_password)
+                define_new_password();
+            else
+                login();
+        }
     });
-    if (!is_prod) {
-        // C'est chiant de devoir appuyer sur entrée à chaque fois quand on reload
-        var interval_id_1 = setInterval(function () {
-            if (!key_pressed && pwd.value != "") {
-                password_entered();
-                clearInterval(interval_id_1);
-            }
-        }, 100);
+    var token = localStorage.getItem("token");
+    var credentials = localStorage.getItem("credentials");
+    if (token && token.length > 0 && credentials && credentials.length > 0) {
+        var parsed_credentials = JSON.parse(atob(credentials));
+        var name_1 = parsed_credentials["name"];
+        var passwd = parsed_credentials["passwd"];
+        login_backend(name_1, passwd);
     }
-    if (pwd.value != "")
-        password_entered();
-}
-function password_entered() {
-    var pwd = document.getElementById("passwd");
-    var passwd = pwd.value;
-    hashPassword(passwd).then(function (hash) {
-        given_mdp = hash;
-        code_entered();
-    });
 }
 document.addEventListener("DOMContentLoaded", function () {
     mdp_listener();
@@ -231,13 +228,11 @@ document.addEventListener("DOMContentLoaded", function () {
         }
     });
     document.addEventListener("keydown", function (k) {
-        if (k.key === "Enter" && given_mdp === "") {
-            var passwd = document.getElementById("passwd");
-            hashPassword(passwd.value).then(function (hash) {
-                given_mdp = hash;
-                console.log(given_mdp);
-                code_entered();
-            });
+        if (k.key === "Enter" && !is_logged) {
+            if (is_entering_new_password)
+                define_new_password();
+            else
+                login();
         }
         if (k.key === "Escape" && document.getElementById("popup").classList.contains("opened")) {
             close_popup();
@@ -259,7 +254,9 @@ function auto_scroll_loader() {
         }
     });
 }
-function code_entered() {
+function credentials_entered(name, passwd) {
+    var credentials = btoa(JSON.stringify({ name: name, passwd: passwd }));
+    localStorage.setItem("credentials", credentials);
     add_companies();
     auto_scroll_loader();
 }
@@ -319,6 +316,17 @@ function open_company_informations_popup(id) {
                         .textContent = informations["reception_service_municipality"].length > 0 ? informations["reception_service_municipality"] : "Aucune commune";
                     document.getElementById("country_reception_service")
                         .textContent = informations["reception_service_country"].length > 0 ? informations["reception_service_country"] : "Aucun pays";
+                    // update tutors informations
+                    document.getElementById("tutor_name")
+                        .textContent = informations["t.name"].length > 0 ? informations["t.name"] : "Aucun nom";
+                    document.getElementById("tutor_surname")
+                        .textContent = informations["surname"].length > 0 ? informations["surname"] : "Aucun prénom";
+                    document.getElementById("tutor_function")
+                        .textContent = informations["function"].length > 0 ? informations["function"] : "Aucune fonction";
+                    document.getElementById("tutor_mail")
+                        .textContent = informations["mail"].length > 0 ? informations["mail"] : "Aucun mail";
+                    document.getElementById("tutor_phone")
+                        .textContent = informations["t.phone"].length > 0 ? informations["t.phone"] : "Aucun téléphone";
                     document.getElementById("popup").classList.remove("loading");
                     return [2 /*return*/];
             }
@@ -328,4 +336,172 @@ function open_company_informations_popup(id) {
 function close_popup() {
     document.getElementById("popup").classList.remove("opened");
     document.body.style["overflow"] = "";
+}
+var is_entering_new_password = false;
+var is_logged = false;
+function login() {
+    return __awaiter(this, void 0, void 0, function () {
+        var name, passwd, _a, _b;
+        return __generator(this, function (_c) {
+            switch (_c.label) {
+                case 0:
+                    name = document.getElementById("id_name").value;
+                    passwd = document.getElementById("passwd").value;
+                    _a = login_backend;
+                    _b = [name];
+                    return [4 /*yield*/, hashPassword(passwd)];
+                case 1: return [4 /*yield*/, _a.apply(void 0, _b.concat([_c.sent()]))];
+                case 2:
+                    _c.sent();
+                    return [2 /*return*/];
+            }
+        });
+    });
+}
+function login_backend(name, passwd) {
+    return __awaiter(this, void 0, void 0, function () {
+        var form;
+        return __generator(this, function (_a) {
+            form = new FormData();
+            form.set("name", name);
+            form.set("passwd", passwd);
+            fetch("".concat(SERVER_HOST, "/auth/login"), {
+                body: form,
+                method: "POST"
+            }).then(function (res) {
+                return __awaiter(this, void 0, void 0, function () {
+                    var _a, data, credentials_base64;
+                    return __generator(this, function (_b) {
+                        switch (_b.label) {
+                            case 0:
+                                _a = res.status;
+                                switch (_a) {
+                                    case 200: return [3 /*break*/, 1];
+                                    case 401: return [3 /*break*/, 3];
+                                }
+                                return [3 /*break*/, 4];
+                            case 1: return [4 /*yield*/, res.json()];
+                            case 2:
+                                data = _b.sent();
+                                // set the token in the localStorage
+                                localStorage.setItem("token", data["token"]);
+                                // don't call await, as this is asynchronous to not block the user interface
+                                new_device(name);
+                                if (data["is_passwd_default"] == 1) {
+                                    credentials_base64 = btoa(JSON.stringify({ name: name, passwd: passwd }));
+                                    localStorage.setItem("credentials", credentials_base64);
+                                    is_entering_new_password = true;
+                                    document.getElementById("id_info").style["display"] = "none";
+                                    document.getElementById("login_title")
+                                        .textContent = "Définir un nouveau mot de passe";
+                                    document.getElementById("passwd")
+                                        .setAttribute("placeholder", "Nouveau mot de passe");
+                                    document.getElementById("passwd_label")
+                                        .textContent = "Nouveau mot de passe";
+                                    document.getElementById("passwd").value = "";
+                                    document.getElementById("login_btn").textContent = "Définir le nouveau mot de passe";
+                                    document.getElementById("login_btn").onclick = function () { return define_new_password(); };
+                                }
+                                else {
+                                    is_logged = true;
+                                    credentials_entered(name, passwd);
+                                }
+                                return [3 /*break*/, 5];
+                            case 3:
+                                {
+                                    alert("Mot de passe ou identifiant incorrect");
+                                    return [3 /*break*/, 5];
+                                }
+                                _b.label = 4;
+                            case 4:
+                                alert("Erreur lors de la connexion: CODE " + res.status.toString());
+                                _b.label = 5;
+                            case 5: return [2 /*return*/];
+                        }
+                    });
+                });
+            }, function (e) {
+                alert("Erreur lors de la connexion: " + e.toString());
+            });
+            return [2 /*return*/];
+        });
+    });
+}
+function new_device(id) {
+    return __awaiter(this, void 0, void 0, function () {
+        var previous_connections, parsed_previous_connections;
+        return __generator(this, function (_a) {
+            switch (_a.label) {
+                case 0:
+                    previous_connections = localStorage.getItem("previous_connections") || "";
+                    parsed_previous_connections = previous_connections.split(/,/g).filter(function (e) { return e.length > 0; });
+                    console.log(parsed_previous_connections, id);
+                    if (!!parsed_previous_connections.includes(id)) return [3 /*break*/, 2];
+                    if (parsed_previous_connections.length > 0)
+                        previous_connections += ",".concat(id);
+                    else
+                        previous_connections = id;
+                    localStorage.setItem("previous_connections", previous_connections);
+                    // tell the api that a new device is connected to the account
+                    return [4 /*yield*/, fetch("".concat(SERVER_HOST, "/auth/new_device"), {
+                            headers: {
+                                "TOKEN": localStorage.getItem("token")
+                            }
+                        })];
+                case 1:
+                    // tell the api that a new device is connected to the account
+                    _a.sent();
+                    _a.label = 2;
+                case 2: return [2 /*return*/];
+            }
+        });
+    });
+}
+function define_new_password() {
+    return __awaiter(this, void 0, void 0, function () {
+        var new_passwd, data;
+        return __generator(this, function (_a) {
+            switch (_a.label) {
+                case 0:
+                    is_logged = true;
+                    return [4 /*yield*/, hashPassword(document.getElementById("passwd").value)];
+                case 1:
+                    new_passwd = _a.sent();
+                    data = new FormData();
+                    data.set("new_passwd", new_passwd);
+                    fetch("".concat(SERVER_HOST, "/auth/define_new_password"), {
+                        method: "POST",
+                        body: data,
+                        headers: {
+                            "TOKEN": localStorage.getItem("token")
+                        }
+                    }).then(function (res) {
+                        return __awaiter(this, void 0, void 0, function () {
+                            var credentials;
+                            return __generator(this, function (_a) {
+                                switch (res.status) {
+                                    case 200: {
+                                        alert("Le mot de passe a été modifié avec succès");
+                                        credentials = JSON.parse(atob(localStorage.getItem("credentials")));
+                                        credentials_entered(credentials["name"], new_passwd);
+                                        break;
+                                    }
+                                    case 401: {
+                                        alert("Vous n'êtes pas connecté");
+                                        bad_credentials();
+                                        break;
+                                    }
+                                    default:
+                                        alert("Erreur lors de la connexion: CODE " + res.status.toString());
+                                }
+                                return [2 /*return*/];
+                            });
+                        });
+                    }, function (e) {
+                        alert("Erreur lors de la connexion: " + e.toString());
+                    });
+                    return [2 /*return*/];
+            }
+        });
+    });
 }

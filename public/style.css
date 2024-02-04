@@ -370,8 +370,26 @@ input:focus {
   margin: auto;
   text-align: center;
 }
-.login .center input {
+.login .center h1 {
+  margin-bottom: 50px;
+}
+.login .center button {
   margin: 30px auto;
+}
+.login .center .info {
+  margin: 5px auto;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+}
+.login .center .info label {
+  width: 100px;
+  display: block;
+  margin-left: auto;
+  text-align: left;
+}
+.login .center .info input {
+  margin-right: auto;
 }
 .top {
   position: fixed;

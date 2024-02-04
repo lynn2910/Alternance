@@ -11,14 +11,23 @@
         <div class="login">
 
             <div class="center">
-                <h1>Veuillez entrer le code d'authentification</h1>
+                <h1 id="login_title">Identification</h1>
 
+                <div class="info" id="id_info">
+                    <label for="id_name">Identifiant</label>
+                    <input id="id_name" type="text" placeholder="Votre identifiant">
+                </div>
                 <div class="info">
-                    <label for="passwd">Code</label>
+                    <label for="passwd" id="passwd_label">Code</label>
                     <input id="passwd" type="password" placeholder="Le code d'authentification">
                 </div>
 
-                <p>Ce code permet de protéger les données en limitant l'accès aux seuls détenteurs du code.</p>
+                <button id="login_btn"
+                        type="button"
+                        onclick="login()">Se connecter
+                </button>
+
+                <p>Ces identifiants ne doivent pas être partagés.<br>Tout partage des identifiants entrainera une suppression de votre accès au service.</p>
             </div>
         </div>
 
