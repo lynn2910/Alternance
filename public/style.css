@@ -37,10 +37,19 @@ details.info {
   backdrop-filter: blur(7px);
   border: 3px solid #435a74;
   border-radius: 7px;
-  background: rgba(67, 90, 116, 0.25);
+  background: rgba(67, 90, 116, 0.5);
+  transition: background 0.15s ease-in-out;
 }
 details.info[open] {
-  background: rgba(67, 90, 116, 0.4);
+  background: rgba(67, 90, 116, 0.7);
+  transition: background 0.15s ease-in-out;
+}
+details.info p {
+  cursor: text;
+}
+details.info a {
+  color: #5582e3;
+  font-weight: 800;
 }
 details.info summary {
   list-style: none;
@@ -194,21 +203,138 @@ details.info .i_love_you a {
   font-size: 0.9em;
   color: rgba(255, 255, 255, 0.8);
 }
-.table .container #alternance .company button:last-child {
+.table .container #alternance .company .bottom {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
   margin-top: 20px;
+}
+.table .container #alternance .company .bottom p {
+  margin: auto 0 auto auto;
+  font-size: 0.9em;
+  width: 50%;
+  text-align: right;
+}
+.table .container #alternance .company .bottom button {
   background: rgba(85, 130, 227, 0.2);
   display: flex;
   flex-direction: row;
   align-items: center;
 }
-.table .container #alternance .company button:last-child svg {
+.table .container #alternance .company .bottom button svg {
   fill: #5582e3;
   width: 24px;
   height: auto;
   margin-right: 10px;
 }
-.table .container #alternance .company button:last-child:hover {
+.table .container #alternance .company .bottom button:hover {
   background: rgba(85, 130, 227, 0.4);
+}
+#popup {
+  position: fixed;
+  z-index: 2000;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  display: flex;
+  flex-direction: row;
+}
+#popup:not(.opened) {
+  display: none;
+}
+#popup .loading {
+  display: none;
+}
+#popup.loading .loading {
+  position: fixed;
+  z-index: 1010;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 100vw;
+  height: 100vh;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  background: rgba(0, 0, 0, 0.9);
+}
+#popup.loading .loading .dot-spinner {
+  margin-left: auto;
+}
+#popup.loading .loading p {
+  margin-right: auto;
+}
+#popup .bg {
+  width: 100vw;
+  height: 100vw;
+  background: rgba(0, 0, 0, 0.5);
+}
+#popup .container {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  width: 50vw;
+  height: 80vh;
+  overflow-y: hidden;
+  transform: translate(-50%, -50%);
+  background: #121920;
+  border-radius: 7px;
+  border: 3px solid #435a74;
+}
+#popup .container .head {
+  margin: 0 20px;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+}
+#popup .container .head svg {
+  margin: auto 0 auto auto;
+  fill: #fff;
+  height: 2.7em;
+  width: auto;
+  cursor: pointer;
+}
+#popup .container .head svg:hover {
+  fill: #5582e3;
+}
+#popup .container .row {
+  display: flex;
+  flex-direction: row;
+  align-items: flex-start;
+  padding: 0 20px 20px 20px;
+}
+#popup .container .row .map {
+  margin-left: 20px;
+}
+#popup .container .row .map iframe {
+  min-height: 400px;
+  width: 100%;
+}
+#popup .container .row .infos {
+  overflow-y: scroll;
+  width: calc(50vw / 2 - 10px);
+  height: 80vh;
+  padding-right: 10px;
+}
+#popup .container .row .infos section:not(:first-child) {
+  margin-top: 50px;
+}
+#popup .container .row .infos .i {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  border-bottom: 1px solid #435a74;
+}
+#popup .container .row .infos .i .t {
+  font-weight: bold;
+  font-size: 0.9em;
+  margin: auto 10px auto 0;
+  user-select: none;
+}
+#popup .container .row .infos .i p:last-child {
+  margin-left: auto;
+  font-size: 0.8em;
 }
 #fuck_this_shit {
   height: 2px;

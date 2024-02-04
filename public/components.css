@@ -295,3 +295,9 @@
 
     margin: auto auto auto 20px;
 }
+
+.loading em {
+    font-size: 0.8em;
+    font-style: normal;
+    font-weight: normal;
+}

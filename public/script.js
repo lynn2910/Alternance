@@ -34,18 +34,19 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
         if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
     }
 };
-var SERVER_HOST = "https://alternance.chamallow.xyz";
+var SERVER_HOST = document.location.host.toString().match(/[a-zA-Z]+\.[a-zA-Z]+/)
+    ? "https://alternance.chamallow.xyz"
+    : "http://192.168.1.46:64863";
+var is_prod = (/[a-zA-Z0-9]+\.[a-zA-Z]+/).test(document.location.host.toString());
 function fetch_companies(n) {
     return __awaiter(this, void 0, void 0, function () {
         return __generator(this, function (_a) {
             return [2 /*return*/, new Promise(function (resolve, reject) {
                     var _this = this;
-                    fetch("".concat(SERVER_HOST, "/companies?ratio=").concat(n, "&passwd=").concat(given_mdp).concat(query_filter.length > 0 ? "&".concat(query_filter) : ""), {
-                        method: "GET",
+                    fetch("".concat(SERVER_HOST, "/companies?ratio=").concat(n, "&passwd=").concat(given_mdp), {
+                        method: "POST",
                         mode: "cors",
-                        headers: {
-                            "Content-Type": "application/json"
-                        }
+                        body: query_filter
                     }).then(function (res) { return __awaiter(_this, void 0, void 0, function () {
                         var _a;
                         return __generator(this, function (_b) {
@@ -69,17 +70,17 @@ function fetch_companies(n) {
         });
     });
 }
-function get_companies_count() {
+function get_company_informations(id) {
     return __awaiter(this, void 0, void 0, function () {
         return __generator(this, function (_a) {
             return [2 /*return*/, new Promise(function (resolve, reject) {
                     var _this = this;
-                    fetch("".concat(SERVER_HOST, "/companies/get_count?passwd=").concat(given_mdp).concat(query_filter.length > 0 ? "&".concat(query_filter) : ""), {
-                        method: "GET",
+                    var form_data = new FormData();
+                    form_data.set("company_id", id);
+                    fetch("".concat(SERVER_HOST, "/companies/get_company_informations?passwd=").concat(given_mdp), {
+                        method: "POST",
                         mode: "cors",
-                        headers: {
-                            "Content-Type": "application/json"
-                        }
+                        body: form_data
                     }).then(function (res) { return __awaiter(_this, void 0, void 0, function () {
                         var _a;
                         return __generator(this, function (_b) {
@@ -104,28 +105,25 @@ function get_companies_count() {
     });
 }
 var N = 0;
-var query_filter = "";
+var query_filter = new FormData();
 function add_companies() {
     return __awaiter(this, void 0, void 0, function () {
-        var companies, login, count;
-        return __generator(this, function (_a) {
-            switch (_a.label) {
+        var _a, count, companies, login;
+        return __generator(this, function (_b) {
+            switch (_b.label) {
                 case 0: return [4 /*yield*/, fetch_companies(N)];
                 case 1:
-                    companies = _a.sent();
+                    _a = _b.sent(), count = _a.count, companies = _a.companies;
                     login = document.querySelectorAll(".login");
                     if (login.length > 0)
                         login.forEach(function (e) { return e.remove(); });
-                    if (!(N < 1)) return [3 /*break*/, 3];
-                    document.getElementById("alternance").innerHTML = "";
-                    if (!(companies.length > 0)) return [3 /*break*/, 3];
-                    return [4 /*yield*/, get_companies_count()];
-                case 2:
-                    count = _a.sent();
-                    document.getElementById("count")
-                        .innerHTML = "<p><strong>".concat(count, "</strong> r\u00E9sultats</p>");
-                    _a.label = 3;
-                case 3:
+                    // Si N < 1, ça veut dire qu'il n'y avait aucune entreprise
+                    // donc on doit retirer le loader
+                    if (N < 1) {
+                        document.getElementById("alternance").innerHTML = "";
+                        document.getElementById("count")
+                            .innerHTML = "<p><strong>".concat(count, "</strong> r\u00E9sultats</p>");
+                    }
                     if (companies.length > 0) {
                         N++;
                         companies.forEach(add_company);
@@ -138,24 +136,20 @@ function add_companies() {
         });
     });
 }
-function get_filter_query() {
-    var query = "";
+function apply_current_filter_params() {
+    // reset the current filter
+    query_filter = new FormData();
     var research_alternance_required = document.getElementById("research_alternance_required");
-    console.log(research_alternance_required.checked);
-    research_alternance_required.checked ? query += "alternance_required=true" : query += "alternance_required=false";
+    query_filter.set("alternance_required", research_alternance_required.checked ? "true" : "false");
     var keyword = document.getElementById("search");
-    if (keyword.value !== "") {
-        if (query.length > 0)
-            query += "&";
-        query += "keyword=".concat(encodeURIComponent(keyword.value));
-    }
-    return query;
+    if (keyword.value !== "")
+        query_filter.set("keyword", keyword.value);
 }
 function apply_filter() {
     document.getElementById("alternance").innerHTML = "<div class=\"loading\"><div class=\"dot-spinner\"><div class=\"dot-spinner__dot\"></div><div class=\"dot-spinner__dot\"></div><div class=\"dot-spinner__dot\"></div><div class=\"dot-spinner__dot\"></div><div class=\"dot-spinner__dot\"></div><div class=\"dot-spinner__dot\"></div><div class=\"dot-spinner__dot\"></div><div class=\"dot-spinner__dot\"></div></div><p>Les donn\u00E9es chargent...</p></div>";
     document.getElementById("count").innerHTML = "";
     N = 0;
-    query_filter = get_filter_query();
+    apply_current_filter_params();
     add_companies().then(function () {
         console.log("Filter applied !");
     });
@@ -171,7 +165,7 @@ function add_company(company) {
     var address = "".concat(company.street_address, " - ").concat(company.postal_code, " - ").concat(company.country)
         .replace(/\s{2,}/g, " ");
     // 3 RUE DU DOCTEUR FRERY - CS 50199, 90000 BELFORT CEDEX, FRANCE
-    var html = "\n<div class=\"company\">\n    <div class=\"head\">\n        <h3>".concat(company.host_name_establishment, "</h3>\n        <p>").concat(company.year, "</p>\n    </div>\n    <p class=\"type\"><strong>Type d'entreprise\u00A0: </strong>").concat(company.structure_type, "</p>\n    <p class=\"description\">").concat(company.subject, "</p>\n    <div class=\"localisation\">\n        <svg viewBox=\"0 0 24 24\" fill=\"none\" xmlns=\"http://www.w3.org/2000/svg\">\n            <path d=\"M12 21C15.5 17.4 19 14.1764 19 10.2C19 6.22355 15.866 3 12 3C8.13401 3 5 6.22355 5 10.2C5 14.1764 8.5 17.4 12 21Z\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"/>\n            <path d=\"M12 12C13.1046 12 14 11.1046 14 10C14 8.89543 13.1046 8 12 8C10.8954 8 10 8.89543 10 10C10 11.1046 10.8954 12 12 12Z\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"/>\n        </svg>\n        <a target=\"_blank\" href=\"https://www.google.fr/maps/search/").concat(encodeURIComponent(address), "\">").concat(address, "</a>\n    </div>\n\n    <button type=\"button\">\n        <svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 24 24\"><path d=\"M12 2C6.486 2 2 6.486 2 12s4.486 10 10 10 10-4.486 10-10S17.514 2 12 2zm0 18c-4.411 0-8-3.589-8-8s3.589-8 8-8 8 3.589 8 8-3.589 8-8 8z\"></path><path d=\"M11 11h2v6h-2zm0-4h2v2h-2z\"></path></svg>\n        Voir toutes les informations\n    </button>\n</div>");
+    var html = "\n<div class=\"company\">\n    <div class=\"head\">\n        <h3>".concat(company.host_name_establishment, "</h3>\n        <p>").concat(company.year, "</p>\n    </div>\n    <p class=\"type\"><strong>Type d'entreprise\u00A0: </strong>").concat(company.structure_type, "</p>\n    <p class=\"description\">").concat(company.subject, "</p>\n    <div class=\"localisation\">\n        <svg viewBox=\"0 0 24 24\" fill=\"none\" xmlns=\"http://www.w3.org/2000/svg\">\n            <path d=\"M12 21C15.5 17.4 19 14.1764 19 10.2C19 6.22355 15.866 3 12 3C8.13401 3 5 6.22355 5 10.2C5 14.1764 8.5 17.4 12 21Z\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"/>\n            <path d=\"M12 12C13.1046 12 14 11.1046 14 10C14 8.89543 13.1046 8 12 8C10.8954 8 10 8.89543 10 10C10 11.1046 10.8954 12 12 12Z\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"/>\n        </svg>\n        <a target=\"_blank\" href=\"https://www.google.fr/maps/search/").concat(encodeURIComponent(address), "\">").concat(address, "</a>\n    </div>\n\n    <div class=\"bottom\">\n        <button onclick=\"open_company_informations_popup(").concat(company.company_id, ")\" type=\"button\">\n            <svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 24 24\"><path d=\"M12 2C6.486 2 2 6.486 2 12s4.486 10 10 10 10-4.486 10-10S17.514 2 12 2zm0 18c-4.411 0-8-3.589-8-8s3.589-8 8-8 8 3.589 8 8-3.589 8-8 8z\"></path><path d=\"M11 11h2v6h-2zm0-4h2v2h-2z\"></path></svg>\n            Voir toutes les informations\n        </button>\n        <p>Cette offre <strong>").concat(company.research_students != 0 ? "est toujours disponible" : "date de l'ann\u00E9e ".concat(company.year), "</strong></p>\n    </div>\n    \n</div>");
     document.getElementById("alternance").innerHTML += html;
 }
 function bad_password() {
@@ -197,15 +191,31 @@ function hashPassword(password) {
 var given_mdp = "";
 function mdp_listener() {
     var pwd = document.getElementById("passwd");
+    var key_pressed = false;
     pwd.addEventListener("keydown", function (k) {
-        if (k.key === "Enter") {
-            var passwd = pwd.value;
-            hashPassword(passwd).then(function (hash) {
-                given_mdp = hash;
-                console.log(given_mdp);
-                code_entered();
-            });
-        }
+        if (!key_pressed)
+            key_pressed = true;
+        if (k.key === "Enter")
+            password_entered();
+    });
+    if (!is_prod) {
+        // C'est chiant de devoir appuyer sur entrée à chaque fois quand on reload
+        var interval_id_1 = setInterval(function () {
+            if (!key_pressed && pwd.value != "") {
+                password_entered();
+                clearInterval(interval_id_1);
+            }
+        }, 100);
+    }
+    if (pwd.value != "")
+        password_entered();
+}
+function password_entered() {
+    var pwd = document.getElementById("passwd");
+    var passwd = pwd.value;
+    hashPassword(passwd).then(function (hash) {
+        given_mdp = hash;
+        code_entered();
     });
 }
 document.addEventListener("DOMContentLoaded", function () {
@@ -220,16 +230,19 @@ document.addEventListener("DOMContentLoaded", function () {
             apply_filter();
         }
     });
-});
-document.addEventListener("keydown", function (k) {
-    if (k.key === "Enter" && given_mdp === "") {
-        var passwd = document.getElementById("passwd");
-        hashPassword(passwd.value).then(function (hash) {
-            given_mdp = hash;
-            console.log(given_mdp);
-            code_entered();
-        });
-    }
+    document.addEventListener("keydown", function (k) {
+        if (k.key === "Enter" && given_mdp === "") {
+            var passwd = document.getElementById("passwd");
+            hashPassword(passwd.value).then(function (hash) {
+                given_mdp = hash;
+                console.log(given_mdp);
+                code_entered();
+            });
+        }
+        if (k.key === "Escape" && document.getElementById("popup").classList.contains("opened")) {
+            close_popup();
+        }
+    });
 });
 function auto_scroll_loader() {
     var el = document.getElementById("fuck_this_shit");
@@ -249,4 +262,70 @@ function auto_scroll_loader() {
 function code_entered() {
     add_companies();
     auto_scroll_loader();
+}
+function open_company_informations_popup(id) {
+    return __awaiter(this, void 0, void 0, function () {
+        var informations, address;
+        return __generator(this, function (_a) {
+            switch (_a.label) {
+                case 0:
+                    document.getElementById("popup").classList.add("opened");
+                    document.getElementById("popup").classList.add("loading");
+                    document.body.style["overflow"] = "hidden";
+                    return [4 /*yield*/, get_company_informations(id)];
+                case 1:
+                    informations = _a.sent();
+                    address = "".concat(informations.street_address, " - ").concat(informations.postal_code, " - ").concat(informations.country)
+                        .replace(/\s{2,}/g, " ");
+                    document.getElementById("map")
+                        .setAttribute("src", "https://maps.google.com/maps?q=".concat(encodeURIComponent(address), "&t=&z=13&ie=UTF8&iwloc=&output=embed"));
+                    // update contact information in the popup
+                    document.getElementById("phone_contact")
+                        .textContent = informations.phone.length > 0 ? informations.phone : "Aucun téléphone";
+                    document.getElementById("mail_contact")
+                        .textContent = informations.email.length > 0 ? informations.email : "Aucun mail";
+                    document.getElementById("website_contact")
+                        .textContent = informations.website.length > 0 ? informations.website : "Aucun site web";
+                    document.getElementById("fax_contact")
+                        .textContent = informations.fax.length > 0 ? informations.fax : "Aucun fax";
+                    // update localisation information in the popup
+                    document.getElementById("name_localisation")
+                        .textContent = informations.name.length > 0 ? informations.name : "Aucun nom précisé";
+                    document.getElementById("home_address_localisation")
+                        .textContent = informations.home_address.length > 0 ? informations.home_address : "Aucune résidence précisée";
+                    document.getElementById("street_localisation")
+                        .textContent = informations.street_address.length > 0 ? informations.street_address : "Aucune adresse précisée";
+                    document.getElementById("cedex_localisation")
+                        .textContent = informations.cedex_address.length > 0 ? informations.cedex_address : "Aucun cedex";
+                    document.getElementById("postal_code_localisation")
+                        .textContent = informations.postal_code.length > 0 ? informations.postal_code : "Aucun code postal précisé";
+                    document.getElementById("municipality_localisation")
+                        .textContent = informations["location_municipality"].length > 0 ? informations["location_municipality"] : "Aucune commune précisée";
+                    document.getElementById("country_localisation")
+                        .textContent = informations["location_country"].length > 0 ? informations["location_country"] : "Aucun pays précisé";
+                    // update reception service information in the popup
+                    document.getElementById("name_reception_service")
+                        .textContent = informations["rs.name"].length > 0 ? informations["rs.name"] : "Aucun nom";
+                    document.getElementById("home_address_reception_service")
+                        .textContent = informations["rs.home_address"].length > 0 ? informations["rs.home_address"] : "Aucune adresse";
+                    document.getElementById("street_reception_service")
+                        .textContent = "".concat(informations["rs.street_address"], " - ").concat(informations["rs.postal_code"], " - ").concat(informations["rs.location_country"])
+                        .replace(/\s{2,}/g, " ");
+                    document.getElementById("cedex_reception_service")
+                        .textContent = informations["rs.cedex_address"].length > 0 ? informations["rs.cedex_address"] : "Aucun cedex";
+                    document.getElementById("postal_code_reception_service")
+                        .textContent = informations["rs.postal_code"].length > 0 ? informations["rs.postal_code"] : "Aucun code postal";
+                    document.getElementById("municipality_reception_service")
+                        .textContent = informations["reception_service_municipality"].length > 0 ? informations["reception_service_municipality"] : "Aucune commune";
+                    document.getElementById("country_reception_service")
+                        .textContent = informations["reception_service_country"].length > 0 ? informations["reception_service_country"] : "Aucun pays";
+                    document.getElementById("popup").classList.remove("loading");
+                    return [2 /*return*/];
+            }
+        });
+    });
+}
+function close_popup() {
+    document.getElementById("popup").classList.remove("opened");
+    document.body.style["overflow"] = "";
 }

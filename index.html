@@ -33,6 +33,10 @@
             <div class="summary-content">
                 <p>Ce site permet de référencer les différentes entreprises pour l'alternance</p>
 
+                <p>Les informations listées ne sont pas des entreprises, mais des offres d'alternances actuelles ou émises pendant les précédentes années scolaires.<br>Vous pouvez vous référencer à l'année scolaire précisée et à un petit texte indiquant si l'offre est toujours d'actualité (ou de quand elle date dans le cas contraite)</p>
+
+                <p>Si vous observez des bugs/avez des remarques sur le site, n'hésitez pas à contacter le développeur par <a href="mailto:cedric.colin@edu.univ-fcomte.fr" target="_blank">email</a></p>
+
                 <div class="i_love_you">
                     <p>Site et api développé avec ❤️ par Cédric Colin</p>
                     <p>L'api est hébergé par la team <a href="https://github.com/chamallow-team/" target="_blank">Chamallow</a></p>
@@ -54,7 +58,7 @@
                             <polyline points="7.57 15.87 12.62 21.07 23.43 9.93" />
                         </svg>
                     </div>
-                    <div>Recherche obligatoirement des alternants</div>
+                    <div>Recherche actuellement des alternants</div>
                 </label>
                 <!-- Un mot clé dans le nom ou la description -->
                 <div class="mcui-text">
@@ -76,26 +80,171 @@
             <div class="container">
                 <div id="count"></div>
                 <div id="alternance">
-                <!-- Les entreprises vont ici -->
+                    <!-- Les entreprises vont ici -->
 
-                <div class="loading">
-                    <div class="dot-spinner">
-                        <div class="dot-spinner__dot"></div>
-                        <div class="dot-spinner__dot"></div>
-                        <div class="dot-spinner__dot"></div>
-                        <div class="dot-spinner__dot"></div>
-                        <div class="dot-spinner__dot"></div>
-                        <div class="dot-spinner__dot"></div>
-                        <div class="dot-spinner__dot"></div>
-                        <div class="dot-spinner__dot"></div>
+                    <div class="loading">
+                        <div class="dot-spinner">
+                            <div class="dot-spinner__dot"></div>
+                            <div class="dot-spinner__dot"></div>
+                            <div class="dot-spinner__dot"></div>
+                            <div class="dot-spinner__dot"></div>
+                            <div class="dot-spinner__dot"></div>
+                            <div class="dot-spinner__dot"></div>
+                            <div class="dot-spinner__dot"></div>
+                            <div class="dot-spinner__dot"></div>
+                        </div>
+                        <p>Les données chargent...</p>
                     </div>
-                    <p>Les données chargent...</p>
                 </div>
-
             </div>
-            </div>
-
         </div>
+
+        <div id="popup" class="">
+            <div class="bg" onclick="close_popup()">
+                <!-- Le fond foncé, permettra aussi de détecter quand on a cliqué en dehors -->
+            </div>
+            <div class="container">
+                <div class="head">
+                    <h2>Informations sur l'entreprise</h2>
+                    <svg viewBox="0 0 24 24"
+                         onclick="close_popup()"
+                         xmlns="http://www.w3.org/2000/svg">
+                        <path d="m16.192 6.344-4.243 4.242-4.242-4.242-1.414 1.414L10.535 12l-4.242 4.242 1.414 1.414 4.242-4.242 4.243 4.242 1.414-1.414L13.364 12l4.242-4.242z"></path>
+                    </svg>
+                </div>
+                <div class="row">
+                    <div class="infos">
+                        <!-- Contacts -->
+                        <section>
+                            <h3>Contacts</h3>
+                            <div class="i">
+                                <p class="t">Téléphone : </p>
+                                <p id="phone_contact">+33 0 00 00 00 00</p>
+                            </div>
+                            <div class="i">
+                                <p class="t">Mail : </p>
+                                <p id="mail_contact">yeet@chartreuse.com</p>
+                            </div>
+                            <div class="i">
+                                <p class="t">Site web : </p>
+                                <p id="website_contact">lynn.chamallow.xyz</p>
+                            </div>
+                            <div class="i">
+                                <p class="t">FAX : </p>
+                                <p id="fax_contact">Heu?</p>
+                            </div>
+                        </section>
+                        <!-- Localisation -->
+                        <section>
+                            <h3>Localisation</h3>
+                            <div class="i">
+                                <p class="t">Nom : </p>
+                                <p id="name_localisation">Chamallow</p>
+                            </div>
+                            <div class="i">
+                                <p class="t">Résidence : </p>
+                                <p id="home_address_localisation">Il n'y en a pas beaucoup</p>
+                            </div>
+                            <div class="i">
+                                <p class="t">Rue : </p>
+                                <p id="street_localisation">1 rue de la galère</p>
+                            </div>
+                            <div class="i">
+                                <p class="t">CEDEX : </p>
+                                <p id="cedex_localisation">Ah yes...</p>
+                            </div>
+                            <div class="i">
+                                <p class="t">Code postal : </p>
+                                <p id="postal_code_localisation">25250</p>
+                            </div>
+                            <div class="i">
+                                <p class="t">Commune : </p>
+                                <p id="municipality_localisation">Doubs</p>
+                            </div>
+                            <div class="i">
+                                <p class="t">Pays : </p>
+                                <p id="country_localisation">FRANCE</p>
+                            </div>
+                        </section>
+                        <!-- Service d'accueil -->
+                        <section>
+                            <h3>Service d'accueil</h3>
+                            <div class="i">
+                                <p class="t">Nom : </p>
+                                <p id="name_reception_service">Chamallow</p>
+                            </div>
+                            <div class="i">
+                                <p class="t">Résidence : </p>
+                                <p id="home_address_reception_service">Il n'y en a pas beaucoup</p>
+                            </div>
+                            <div class="i">
+                                <p class="t">Rue : </p>
+                                <p id="street_reception_service">1 rue de la galère</p>
+                            </div>
+                            <div class="i">
+                                <p class="t">CEDEX : </p>
+                                <p id="cedex_reception_service">Ah yes...</p>
+                            </div>
+                            <div class="i">
+                                <p class="t">Code postal : </p>
+                                <p id="postal_code_reception_service">25250</p>
+                            </div>
+                            <div class="i">
+                                <p class="t">Commune : </p>
+                                <p id="municipality_reception_service">Doubs</p>
+                            </div>
+                            <div class="i">
+                                <p class="t">Pays : </p>
+                                <p id="country_reception_service">FRANCE</p>
+                            </div>
+                        </section>
+                        <!-- Tuteur -->
+                        <section>
+                            <h3>Tuteur</h3>
+                            <div class="i">
+                                <p class="t">Nom de famille : </p>
+                                <p id="tutor_name">COLIN</p>
+                            </div>
+                            <div class="i">
+                                <p class="t">Prénom : </p>
+                                <p id="tutor_surname">Cédric</p>
+                            </div>
+                            <div class="i">
+                                <p class="t">Téléphone : </p>
+                                <p id="tutor_phone">+33 0 00 00 00 00</p>
+                            </div>
+                            <div class="i">
+                                <p class="t">Mail : </p>
+                                <p id="tutor_mail">yeet@chartreuse.com</p>
+                            </div>
+                            <div class="i">
+                                <p class="t">Fonction : </p>
+                                <p id="tutor_function">Développeur</p>
+                            </div>
+                        </section>
+                        <br><br><br><br><br>
+                    </div>
+                    <div class="map">
+                        <!-- ... -->
+                        <iframe title="Localisation de l'entreprise" id="map" src="https://maps.google.com/maps?q=350%20Rue%20Alfred%20Nobel%20-%2034000%20-%20FRANCE&amp;t=&amp;z=13&amp;ie=UTF8&amp;iwloc=&amp;output=embed"></iframe>
+                    </div>
+                </div>
+            </div>
+            <div class="loading">
+                <div class="dot-spinner">
+                    <div class="dot-spinner__dot"></div>
+                    <div class="dot-spinner__dot"></div>
+                    <div class="dot-spinner__dot"></div>
+                    <div class="dot-spinner__dot"></div>
+                    <div class="dot-spinner__dot"></div>
+                    <div class="dot-spinner__dot"></div>
+                    <div class="dot-spinner__dot"></div>
+                    <div class="dot-spinner__dot"></div>
+                </div>
+                <p>Les données chargent...<br><em>Appuyez sur ECHAP pour fermer la popup</em></p>
+            </div>
+        </div>
+
         <div id="fuck_this_shit"></div>
 
         <a href="#top" class="top">
